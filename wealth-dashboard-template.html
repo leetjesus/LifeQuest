@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #555;
+        }
+
+        .header {
+            height: 60px;
+            background-color: #fff;
+            width: calc(100% - 250px);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            left: 250px;
+            top: 0;
+        }
+
+        .header h1 {
+            margin-left: 20px;
+            font-size: 22px;
+        }
+
+        .main-content {
+            margin-top: 60px;
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .visualizer-chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+        }
+        
+        #visualizerChart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .dropdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10; 
+        }
+
+        .dropbtn {
+            background-color: rgba(255, 255, 255, 0.2); 
+            color: black;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            right: 0;
+            border-radius: 5px;
+        }
+        
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+}
+
+        .bottom-section {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .pie-charts {
+            flex: 1;
+            display: flex;
+            gap: 20px; 
+            justify-content: space-between;
+        }
+
+        .pie-chart {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1; 
+        }
+
+        .pie-chart canvas {
+            width: 300px;
+            height: 300px;
+            max-width: 400%; 
+            min-height: 100px;
+        }
+
+        .wealth-table {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .wealth-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .wealth-table th, .wealth-table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .wealth-table th {
+            background-color: #f0f0f0;
+        }
+
+        .wealth-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Fitness</a></li>
+            <li><a href="#">Wealth</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Wealth Dashboard</h1>
+        <div class="user-profile">
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Chart Area -->
+        <div class="chart-container">
+            
+            <!-- Visualizer Chart -->
+            <div class="visualizer-chart-container">
+                <canvas id="visualizerChart"></canvas>
+                <div class="dropdown">
+                    <button class="dropbtn">Menu</button>
+                    <div class="dropdown-content">
+                        <a href="#">Bi-Weekly</a>
+                        <a href="#">Monthly</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pie Charts and Table -->
+            <div class="bottom-section">
+                <div class="pie-charts">
+                    <div class="pie-chart">
+                        <h3>New Car</h3>
+                        <canvas id="pieChart1"></canvas>
+                    </div>
+                    <div class="pie-chart">
+                        <h3>Mexico Trip</h3>
+                        <canvas id="pieChart2"></canvas>
+                    </div>
+                </div>
+                <div class="wealth-table">
+                    <h3>Recent Transactins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Netflex</td>
+                                <td>Entertainment</td>
+                                <td>$25.00</td>
+                            </tr>
+                            <tr>
+                                <td>Starbucks</td>
+                                <td>Dinning & Drinks</td>
+                                <td>$6.49</td>
+                            </tr>
+                            <tr>
+                                <td>Mcdonald's</td>
+                                <td>Dinning & Drinks</td>
+                                <td>$20.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Visualizer Chart
+        const ctx1 = document.getElementById('visualizerChart').getContext('2d');
+        const visualizerChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [
+                    {
+                        label: 'Present Spending Month',
+                        data: [600, 800, 1200, 1500], 
+                        borderColor: 'rgba(75, 192, 192, 1)', 
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.2 
+                    },
+                    {
+                        label: 'Spending - Last Month',
+                        data: [700, 900, 1100, 1400],
+                        borderColor: 'rgba(255, 99, 132, 1)', 
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1 
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Spending ($)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index', 
+                        intersect: false
+                    }
+                }
+            }
+        });
+        // Pie Chart for New Car Savings
+        const ctx2 = document.getElementById('pieChart1').getContext('2d');
+        const totalCost = 20000; // Total cost of the car
+        const amountSaved = 5000; // Amount saved
+            
+        const pieChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: ['Amount Saved', 'Amount Remaining'],
+                datasets: [{
+                    data: [amountSaved, totalCost - amountSaved], 
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 1)', 
+                        'rgba(255, 99, 132, 1)'  
+                    ],
+                    borderColor: ['white', 'white'], 
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const value = tooltipItem.raw;
+                                const percentage = ((value / totalCost) * 100).toFixed(2); 
+                                return `${tooltipItem.label}: $${value} (${percentage}%)`; 
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top', // Legend position
+                    },
+                    title: {
+                        display: true,
+                        text: `Savings for New Car: $${amountSaved} out of $${totalCost}`,
+                        font: {
+                            size: 16 
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Pie Chart 2 (Mexico Trip savining)
+        const ctx3 = document.getElementById('pieChart2').getContext('2d');
+        const TotalCost = 5000; 
+        const savedAmount = 1000;
+
+        const pieChart2 = new Chart(ctx3, {
+            type: 'pie',
+            data: {
+                labels: ['Amount Saved', 'Amount Remaining'],
+                datasets: [{
+                    data: [savedAmount, TotalCost - savedAmount], 
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 1)', 
+                        'rgba(255, 99, 132, 1)'  
+                    ],
+                    borderColor: ['white', 'white'], 
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const value = tooltipItem.raw;
+                                const percentage = ((value / TotalCost) * 100).toFixed(2); 
+                                return `${tooltipItem.label}: $${value} (${percentage}%)`; 
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top', 
+                    },
+                    title: {
+                        display: true,
+                        text: `Savings for Mexico Trip: $${savedAmount} out of $${TotalCost}`,
+                        font: {
+                            size: 16 
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
